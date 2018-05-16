@@ -15,7 +15,6 @@ web:
   links:
     - db
     - redis
-    - rabbitmq
   expose:
     - "8282"
   volumes:
@@ -43,7 +42,13 @@ rabbitmq:
     - RABBITMQ_DEFAULT_VHOST=uber
 celery-beat:
   build: .
-  command: /app/env/bin/celery -A uber.tasks beat
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-beat']
 celery-worker:
   build: .
-  command: /app/env/bin/celery -A uber.tasks worker
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-worker']
