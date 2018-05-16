@@ -6,4 +6,7 @@ RUN /app/env/bin/paver install_deps
 
 # derp, fix this to be done in sideboard instead
 CMD /app/env/bin/python3 /app/sideboard/run_server.py
-CMD /app/env/bin/python3 /app/sideboard/sep.py alembic upgrade heads
+
+ADD uber-wrapper.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/uber-wrapper.sh
+ENTRYPOINT ["uber-wrapper.sh"]
