@@ -15,6 +15,7 @@ web:
   links:
     - db
     - redis
+    - rabbitmq
   expose:
     - "8282"
   volumes:
@@ -33,6 +34,7 @@ db:
     - POSTGRES_DB=uber_db
 redis:
   image: redis
+  container_name: rams_redis
 rabbitmq:
   container_name: rams_rabbit
   image: rabbitmq:alpine
