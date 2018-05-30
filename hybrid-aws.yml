@@ -1,0 +1,33 @@
+# docker-compose for running RAMS on AWS w/ RDS and ALB
+#   (You still need to run a webserver, but I went with apache httpd)
+
+web:
+  build: .
+  links:
+    - redis
+  ports:
+    - "8282:8282"
+  volumes:
+    - ./src:/app/plugins
+  restart: always
+  env_file: $SECRETS_DIR/rams-env
+redis:
+  image: redis
+
+rabbitmq:
+  container_name: rams_rabbit
+  image: rabbitmq:alpine
+  env_file: $SECRETS_DIR/rams-env
+celery-beat:
+  build: .
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-beat']
+celery-worker:
+  build: .
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-worker']
+                
