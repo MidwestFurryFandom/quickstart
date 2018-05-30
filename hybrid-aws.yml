@@ -5,6 +5,7 @@ web:
   build: .
   links:
     - redis
+    - rabbitmq
   ports:
     - "8282:8282"
   volumes:
@@ -13,7 +14,7 @@ web:
   env_file: $SECRETS_DIR/rams-env
 redis:
   image: redis
-
+  container_name: rams_redis
 rabbitmq:
   container_name: rams_rabbit
   image: rabbitmq:alpine
