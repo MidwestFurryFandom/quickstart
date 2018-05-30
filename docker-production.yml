@@ -21,3 +21,22 @@ db:
   volumes:
     - rams_db_data:/var/lib/postgresql/data
   env_file: $SECRETS_DIR/db-env
+redis:
+  image: redis
+  container_name: rams_redis
+rabbitmq:
+  container_name: rams_rabbit
+  image: rabbitmq:alpine
+  env_file: $SECRETS_DIR/rabbit-env
+celery-beat:
+  build: .
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-beat']
+celery-worker:
+  build: .
+  links:
+    - db
+    - rabbitmq
+  command: ['celery-worker']
