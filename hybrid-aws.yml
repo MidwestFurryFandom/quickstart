@@ -21,13 +21,11 @@ rabbitmq:
 celery-beat:
   build: .
   links:
-    - db
     - rabbitmq
   command: ['celery-beat']
 celery-worker:
   build: .
   links:
-    - db
     - rabbitmq
   command: ['celery-worker']
                 
