@@ -1,3 +1,4 @@
 src
 nginx/certs
 uber-development.ini
+**/*.env
