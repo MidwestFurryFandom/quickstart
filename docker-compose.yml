@@ -54,3 +54,5 @@ celery-worker:
     - db
     - rabbitmq
   command: ['celery-worker']
+  volumes:
+    - ./src:/app/plugins
