@@ -56,3 +56,4 @@ celery-worker:
   command: ['celery-worker']
   volumes:
     - ./src:/app/plugins
+  restart: always
