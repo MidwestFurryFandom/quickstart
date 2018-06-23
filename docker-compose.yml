@@ -1,5 +1,5 @@
 # docker-compose for development of ubersystem
-version: "3"
+version: "3.6"
 services: 
   lb:
     #image: jwilder/nginx-proxy
@@ -11,6 +11,7 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     environment:
       - DEFAULT_HOST=rams.local
+
   web:
     build: .
     links:
@@ -20,12 +21,16 @@ services:
     expose:
       - "8282"
     volumes:
-      - ./src:/app/plugins
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
     restart: always
     environment:
       - DB_CONNECTION_STRING=postgresql://uber_db:uber_db@rams_db:5432/uber_db
       - VIRTUAL_HOST=rams.local
       - CERT_NAME=ssl
+
   db:
     image: postgres
     container_name: rams_db
@@ -33,9 +38,11 @@ services:
       - POSTGRES_PASSWORD=uber_db
       - POSTGRES_USER=uber_db
       - POSTGRES_DB=uber_db
+
   redis:
     image: redis
     container_name: rams_redis
+
   rabbitmq:
     container_name: rams_rabbit
     image: rabbitmq:alpine
@@ -43,12 +50,20 @@ services:
       - RABBITMQ_DEFAULT_USER=celery
       - RABBITMQ_DEFAULT_PASS=celery
       - RABBITMQ_DEFAULT_VHOST=uber
+
   celery-beat:
     build: .
     links:
       - db
       - rabbitmq
     command: ['celery-beat']
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
+    restart: always
+
   celery-worker:
     build: .
     links:
@@ -56,5 +71,8 @@ services:
       - rabbitmq
     command: ['celery-worker']
     volumes:
-      - ./src:/app/plugins
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
     restart: always
