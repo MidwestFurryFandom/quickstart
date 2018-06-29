@@ -1,56 +1,78 @@
 # docker-compose for development of ubersystem
+version: "3.6"
+services: 
+  lb:
+    #image: jwilder/nginx-proxy
+    build: lb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - DEFAULT_HOST=rams.local
 
-lb:
-  #image: jwilder/nginx-proxy
-  build: lb
-  ports:
-    - "80:80"
-    - "443:443"
-  volumes:
-    - /var/run/docker.sock:/tmp/docker.sock:ro
-  environment:
-    - DEFAULT_HOST=rams.local
-web:
-  build: .
-  links:
-    - db
-    - redis
-    - rabbitmq
-  expose:
-    - "8282"
-  volumes:
-    - ./src:/app/plugins
-  restart: always
-  environment:
-    - DB_CONNECTION_STRING=postgresql://uber_db:uber_db@rams_db:5432/uber_db
-    - VIRTUAL_HOST=rams.local
-    - CERT_NAME=ssl
-db:
-  image: postgres
-  container_name: rams_db
-  environment:
-    - POSTGRES_PASSWORD=uber_db
-    - POSTGRES_USER=uber_db
-    - POSTGRES_DB=uber_db
-redis:
-  image: redis
-  container_name: rams_redis
-rabbitmq:
-  container_name: rams_rabbit
-  image: rabbitmq:alpine
-  environment:
-    - RABBITMQ_DEFAULT_USER=celery
-    - RABBITMQ_DEFAULT_PASS=celery
-    - RABBITMQ_DEFAULT_VHOST=uber
-celery-beat:
-  build: .
-  links:
-    - db
-    - rabbitmq
-  command: ['celery-beat']
-celery-worker:
-  build: .
-  links:
-    - db
-    - rabbitmq
-  command: ['celery-worker']
+  web:
+    build: .
+    links:
+      - db
+      - redis
+      - rabbitmq
+    expose:
+      - "8282"
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
+    restart: always
+    environment:
+      - DB_CONNECTION_STRING=postgresql://uber_db:uber_db@rams_db:5432/uber_db
+      - VIRTUAL_HOST=rams.local
+      - CERT_NAME=ssl
+
+  db:
+    image: postgres
+    container_name: rams_db
+    environment:
+      - POSTGRES_PASSWORD=uber_db
+      - POSTGRES_USER=uber_db
+      - POSTGRES_DB=uber_db
+
+  redis:
+    image: redis
+    container_name: rams_redis
+
+  rabbitmq:
+    container_name: rams_rabbit
+    image: rabbitmq:alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=celery
+      - RABBITMQ_DEFAULT_PASS=celery
+      - RABBITMQ_DEFAULT_VHOST=uber
+
+  celery-beat:
+    build: .
+    links:
+      - db
+      - rabbitmq
+    command: ['celery-beat']
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
+    restart: always
+
+  celery-worker:
+    build: .
+    links:
+      - db
+      - rabbitmq
+    command: ['celery-worker']
+    volumes:
+      - type: bind
+        source: ./src
+        target: /app/plugins
+        read_only: true
+    restart: always
