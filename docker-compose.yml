@@ -1,7 +1,6 @@
 # docker-compose for development of ubersystem
 
 lb:
-  #image: jwilder/nginx-proxy
   build: lb
   ports:
     - "80:80"
