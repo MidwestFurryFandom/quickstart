@@ -1,4 +1,4 @@
-FROM vmearl/rams:magfest-merge
+FROM vmearl/sideboard:latest
 
 # install ghostscript
 RUN apt-get update && apt-get install -y ghostscript && rm -rf /var/lib/apt/lists/*
