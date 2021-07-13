@@ -2,3 +2,6 @@ src
 nginx/certs
 uber-development.ini
 **/*.env
+.history/
+*.swp
+.DS_Store
